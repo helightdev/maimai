@@ -119,7 +119,7 @@ class _MainViewState extends State<MainView> {
   }
 
   Padding _buildFileButton(File e, BuildContext context) {
-    var actualName = e.path.split("/").last;
+    var actualName = e.path.split("/").last.split("\\").last;
     var fileName = actualName.split(".").first;
     return Padding(
       padding: const EdgeInsets.only(left: 16.0),
