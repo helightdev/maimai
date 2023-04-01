@@ -2,7 +2,7 @@ import 'dart:core';
 import 'package:dogs_core/dogs_core.dart' as gen;
 import 'package:lyell/lyell.dart' as gen;
 import 'dart:core' as gen0;
-import 'package:picasso/src/tools/image.dart' as gen1;
+import 'package:picasso/src/tool.dart' as gen1;
 import 'package:maimai/models.dart' as gen2;
 import 'package:maimai/models.dart';
 

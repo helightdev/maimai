@@ -4,7 +4,6 @@ import 'dart:ui';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:maimai/main.dart';
 import 'package:picasso/picasso.dart';
 import 'package:http/http.dart' as http;
 

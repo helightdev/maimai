@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:dogs_core/dogs_core.dart';
-import 'package:file_picker/file_picker.dart';
+import 'package:duffer/src/bytebuf_base.dart';
 import 'package:flutter/material.dart';
 import 'package:maimai/source/image.dart';
 import 'package:picasso/picasso.dart';
 import 'package:picasso/src/utils.dart';
+
+import '../views/main.dart';
 
 class MaiMaiStickerTool extends PicassoTool {
   final String? name;
@@ -27,16 +31,14 @@ class MaiMaiStickerTool extends PicassoTool {
 
   @override
   void invoke(BuildContext context, PicassoEditorState state) {
-    showModalBottomSheet(
-        context: context,
-        builder: (context) => _StickerDialog(state: state, tool: this));
+    state.widget.dialogFactory.showDialog(context, (context) => _StickerDialog(state: state, tool: this));
   }
 }
 
 class MaiMaiStickerLayer extends PicassoLayer {
   final SizedImage sticker;
 
-  MaiMaiStickerLayer(this.sticker) : super(renderOutput: true);
+  MaiMaiStickerLayer(this.sticker) : super();
 
   @override
   Widget build(
@@ -52,6 +54,26 @@ class MaiMaiStickerLayer extends PicassoLayer {
   Size? calculateSize(Size canvas, TransformData data) => Size(
       sticker.dimensions.width * data.scale,
       sticker.dimensions.height * data.scale);
+}
+
+class MaiMaiStickerLayerSerializer extends PicassoLayerSerializer {
+  MaiMaiStickerLayerSerializer() : super("maimai:sticker");
+
+  @override
+  bool check(PicassoLayer layer) => layer is MaiMaiStickerLayer;
+
+  @override
+  FutureOr<PicassoLayer> deserialize(ByteBuf buf, PicassoCanvasState state, PicassoEditorState? editorState) {
+    var sticker = buf.readSizedImage();
+    return MaiMaiStickerLayer(sticker);
+  }
+
+  @override
+  FutureOr<void> serialize(PicassoLayer layer, ByteBuf buf, PicassoCanvasState state) async {
+    var stickerLayer = layer as MaiMaiStickerLayer;
+    buf.writeSizedImage(stickerLayer.sticker);
+  }
+
 }
 
 class _StickerDialog extends StatelessWidget {
@@ -93,7 +115,7 @@ class _StickerDialog extends StatelessWidget {
                  var img = await loadImageFromProvider(memoryImage);
                  var sizedImage = SizedImage(memoryImage, Size(img.width.toDouble(), img.height.toDouble()));
                  if (context.mounted) _add(sizedImage, context);
-               }, icon: const Icon(Icons.upload)),
+               }, icon: const Icon(Icons.image)),
                 IconButton(onPressed: () async {
                   showModalBottomSheet(
                       context: context,
@@ -121,11 +143,14 @@ class _StickerDialog extends StatelessWidget {
               ]),
             ),
             Expanded(
-              child: ListView.builder(
-                key: const ValueKey(#StickerDialogPresetPreview),
-                scrollDirection: Axis.horizontal,
-                itemBuilder: buildPresetTile,
-                itemCount: tool.presets.length,
+              child: ScrollConfiguration(
+                behavior: ColumnRowScrollBehaviour(),
+                child: ListView.builder(
+                  key: const ValueKey(#StickerDialogPresetPreview),
+                  scrollDirection: Axis.horizontal,
+                  itemBuilder: buildPresetTile,
+                  itemCount: tool.presets.length,
+                ),
               ),
             ),
           ],
